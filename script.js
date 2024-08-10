@@ -4,7 +4,11 @@ let buttons = document.querySelectorAll(".button");
 Array.from(buttons).forEach(function (button) {
   button.addEventListener("click", function (btn) {
     if (btn.target.innerHTML === "=") {
-      string = total(string);
+      try {
+        string = total(string);
+      } catch (error) {
+        string = "Error";
+      }
       document.querySelector(".btn-input").value = string;
     } else if (btn.target.innerHTML === "AC") {
       string = "";
@@ -17,7 +21,11 @@ Array.from(buttons).forEach(function (button) {
 });
 
 function evaluate(expr) {
-  return Function('"use strict";return (' + expr + ')')();
+  try {
+    return Function('"use strict";return (' + expr + ')')();
+  } catch (error) {
+    throw new Error("Invalid expression");
+  }
 }
 
 function handleParentheses(expr) {
@@ -46,12 +54,17 @@ function handleParentheses(expr) {
       }
     }
 
-    if (start === -1 || end === -1) break; // No more parentheses
-    
-    const innerExpr = result.slice(start + 1, end); // Evaluate the innermost parentheses
+    if (start === -1 || end === -1) break;
+
+    const innerExpr = result.slice(start + 1, end);
     const evaluated = evaluate(innerExpr);
 
     result = result.slice(0, start) + evaluated + result.slice(end + 1);
+  }
+
+  // Check for unmatched parentheses
+  if (parensCount !== 0) {
+    throw new Error("Unmatched parentheses");
   }
 
   return result;
